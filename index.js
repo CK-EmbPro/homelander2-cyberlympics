@@ -1,20 +1,21 @@
+const express = require('express');
 const fs = require('fs');
+const app = express();
+const port = 3000; // You can change this to any available port
 
-// Function to automatically read and display /tmp/secret.txt at startup
-const autoReadSecret = () => {
-  fs.readFile('./tmp/secret.txt', 'utf8', (err, data) => {
+// Define an endpoint to read /tmp/secret.txt
+app.get('/', (req, res) => {
+  fs.readFile('/tmp/secret.txt', 'utf8', (err, data) => {
     if (err) {
       console.error(`Error reading file: ${err.message}`);
-    } else {
-      // Echo the contents of the file
-      console.log(`Contents of /tmp/secret.txt: \n${data}`);
+      return res.status(500).json({ error: `Error reading file: ${err.message}` });
     }
-
-    // Close the shell after the file is read or error is handled
-    console.log('Shell closed.');
-    process.exit(0); // Exit the process after displaying the content
+    // Return the contents of the file in the response
+    res.status(200).json({ message: `Contents of /tmp/secret.txt:`, data });
   });
-};
+});
 
-// Automatically read /tmp/secret.txt at the start and close the shell
-autoReadSecret();
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
